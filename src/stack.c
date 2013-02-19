@@ -9,7 +9,7 @@ element stackinit(STACK* newstack, uint32_t maxlength)
     return 0;
   }
   newstack->content = newset;//point everything in right way
-  newstack->size = 10;//maxlength;
+  newstack->size = maxlength;//maxlength;
   newstack->top = -1;//set empty
   return 1;
 }
