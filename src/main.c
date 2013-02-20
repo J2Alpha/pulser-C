@@ -101,7 +101,7 @@ int main(void)
 void initializer()
 {
 	//SystemClockUpdate();
-	//stackinit(pileP, STACKLENGTH);//TODO fix stack for cortex m3 or find one that works
+	stackinit(pileP, STACKLENGTH);//TODO fix stack for cortex m3 or find one that works
 	init_UART( 0,BAUDRATE );
 	uint8_t sendstring[7]={'U','A','R','T',' ','O','K'};
 	UART_Send( 0, sendstring, 1 );
