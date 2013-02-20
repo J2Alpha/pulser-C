@@ -11,7 +11,7 @@
 //interfacing function
 
 #include "global.h"
-#include "stack.h"
+#include "simplestack.h"
 
 #define IER_RBR		0x01
 #define IER_THRE	0x02
@@ -34,7 +34,7 @@
 
 #define BUFSIZE		0x40
 
-extern volatile STACK* pileP;
+extern volatile LN* topofstack;
 
 //functions
 

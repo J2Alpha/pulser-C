@@ -181,22 +181,22 @@ void UART0_IRQHandler (void)
 	  /* If no error on RLS, normal ready, push onto stack.
 	   * unless full then just bail, comment that part out if a reset by memory overflow is a feature to get out of an interrupt lock
 	   * Note: read RBR will clear the interrupt */
-	  if ( is_full(pileP) )
+	  /*if ( is_full(pileP) ) no limits on length of linked list
 	  {
 		  Dummy = LPC_UART0->RBR;
 		  return;
-	  }
-	  push(pileP,  LPC_UART0->RBR);
+	  }*/
+	  Push(topofstack,  LPC_UART0->RBR);
 	}
   }
   else if ( IIRValue == IIR_RDA )	/* Receive Data Available, just to handle any eventuality like an earlier buffer overflow*/
   {
-	  if ( is_full(pileP) )
+	  /*if ( is_full(pileP) )// linked list is unlimited
 	  {
 		 Dummy = LPC_UART0->RBR;
 	  	 return;
-	  }
-	  push(pileP,  LPC_UART0->RBR);
+	  }*/
+	  Push(topofstack,  LPC_UART0->RBR);
   }
   else if ( IIRValue == IIR_CTI )	/* Character timeout indicator */
   {
@@ -215,7 +215,7 @@ void UART0_IRQHandler (void)
 	  UART0TxEmpty = 0;
 	}
   }
-currentaction=0;
+//currentaction=0;
 }
 void encode(device,message)
 {

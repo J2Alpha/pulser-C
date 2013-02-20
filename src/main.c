@@ -23,7 +23,7 @@ __CRP const unsigned int CRP_WORD = CRP_NO_CRP ;
 // TODO: insert other include files here
 #include "global.h"
 #include "statemap.h"
-#include "stack.h"
+#include "simplestack.h"
 
 #include "LPC17xxUART.h"
 #include "LPC17xxPWM.h"
@@ -39,9 +39,9 @@ __CRP const unsigned int CRP_WORD = CRP_NO_CRP ;
 #define PULSESWITCH 0x00000001
 #define CHARGESWITCH 0x00000002
 
-volatile int32_t currentaction;//the poor man's stack, this shouldn't even be volatile
+//volatile int32_t currentaction;//the poor man's stack, this shouldn't even be volatile
 volatile uint32_t currentstate;//careful with the volatiles tough, runtime asplosions may follow
-volatile STACK* pileP;//caveat implementor
+volatile LN * topofstack;//caveat implementor
 //what the heck is going on with my simple stack
 //it doesn't work due to compiler quirks?
 //but don't remove unless you wanna rewrite half of this
@@ -52,7 +52,7 @@ volatile STACK* pileP;//caveat implementor
 
 
 void initializer(void);
-int32_t getnextaction(STACK *stackP);
+int32_t getnextaction(LN *top);
 
 int main(void)
 {
@@ -65,12 +65,12 @@ int main(void)
 		while(currentstate != INIT)
 		{
 			//UART_Send( 0, message, 1 );
-			int32_t action=currentaction;//getnextaction(pileP); /* get the next action from the stack*/
+			int32_t action=getnextaction(topofstack);//currentaction /* get the next action from the stack*/
 			if (((action>=0)&&(action<ACTIONLIMIT))&&((currentstate>=0)&&(currentstate<STATELIMIT)))
 			{
 				//look busy
 				currentstate=state_map [currentstate][action] ();
-				currentaction=-1;//remove when stack is fixed
+				//currentaction=-1;//remove when stack is fixed
 			}
 			else /* a catch all, do nothing or handle faulty call, just make sure it catches all */
 			{
@@ -87,7 +87,7 @@ int main(void)
 					//TODO:output action fault onto uart for debugging
 					//ignore and do nothing, it should be recoverable
 				}
-				if((currentstate<0)||(currentstate>STATELIMIT))//unknown state, something is seriously fubared
+				if((currentstate<0)||(currentstate>STATELIMIT))//we are in an unknown state, something is seriously fubared
 				{
 					//TODO: try to put faulty state on uart before reset
 					currentstate=INIT;//assume non-recoverable, reset controller TODO: possibly need to reset it harder
@@ -101,7 +101,8 @@ int main(void)
 void initializer()
 {
 	//SystemClockUpdate();
-	stackinit(pileP, STACKLENGTH);//TODO fix stack for cortex m3 or find one that works
+	//stackinit(pileP, STACKLENGTH);//TODO fix stack for cortex m3 or find one that works
+	topofstack = NULL; //needed to avoid popping off too much of the linked list, I liked stack more but allas
 	init_UART( 0,BAUDRATE );
 	uint8_t sendstring[7]={'U','A','R','T',' ','O','K'};
 	UART_Send( 0, sendstring, 1 );
@@ -109,15 +110,17 @@ void initializer()
 	Initialise_Port(IOPORT, IOPORTMASK, IOPORTDIRECTION);
 	Set_pin_interupts(IOPORT, INTERUPTEDGES_0, INTPINS_0);//rewire, discover first
 	NVIC_EnableIRQ(EINT3_IRQn);//enable external interupt 3 for gpio interupts
-	currentaction=-1;
+	//currentaction=-1;
 	//TODO: init UART etc.
 	return;
 }
-int32_t getnextaction(STACK *stackP)
+int32_t getnextaction(LN* top)
 {
-	if(is_empty(stackP))
+	if(top != NULL)
 	{
-		return ACTIONLIMIT;
+		int32_t actionable =  top->content;
+		topofstack = Pop(top);
+		return actionable;
 	}
-	return (int32_t)pop(stackP);
+	return ACTIONLIMIT;
 }

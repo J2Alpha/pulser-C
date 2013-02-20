@@ -166,7 +166,8 @@ void IO_Interupt_Push(uint32_t Port, uint32_t Edge, uint32_t Pins)
 		{
 			if(Pins==iolist[i].pin)
 			{//TODO: edge detection
-				currentaction=iolist[i].action;//push( pileP,iolist[i].type);
+				//currentaction=iolist[i].action;
+				topofstack=Push(topofstack,iolist[i].action);
 			}
 		}
 	}

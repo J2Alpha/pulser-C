@@ -9,10 +9,10 @@
 #define LPC17xxIO_H_
 
 #include "global.h"
-#include "stack.h"
+#include "SIMPLESTACK.h"
 
-extern volatile STACK* pileP;
-extern volatile int32_t currentaction;
+extern volatile LN * topofstack;
+//extern volatile int32_t currentaction;
 /*Initializer
  * port 	 :is portnumber (0-4),
  * mask 	 :enables writing and reading of all registers for witch pinMASK = 0 and blocks when pinMASK = 1 (0x0000=read and write all)
@@ -43,8 +43,8 @@ void Set_pin_interupts(uint32_t Port,uint32_t edge, uint32_t data);
  * the interrupts are passed to extint3 when they happen and then handled here
  */
 extern void EINT3_IRQHandler(void);
-/*Pass an interrupt onto the stack
- * the IO interrupts are passed here by EINT3_IRQHandler and pushed onto the stack
+/*Pass an interrupt onto the SIMPLESTACK
+ * the IO interrupts are passed here by EINT3_IRQHandler and pushed onto the SIMPLESTACK
  */
 void IO_Interupt_Push(uint32_t Port, uint32_t edge, uint32_t pins);
 #endif

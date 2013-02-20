@@ -10,6 +10,7 @@
 #include "statelist.h"
 #include "LPC17xxIO.h"
 #include "LPC17xxUART.h"
+#include "LPC17xxPWM.h"
 
 uint32_t in_SLOW_on_UART(void)
 {
